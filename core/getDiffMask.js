@@ -1,4 +1,4 @@
-module.exports = function masksMerge(...masks) {
+module.exports = function getDiffMask(...masks) {
 	const ctrlMask = masks[0];
 
 	for (let i = 1; i < masks.length; i++) {

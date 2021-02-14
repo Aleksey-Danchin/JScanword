@@ -1,11 +1,11 @@
-const masksMerge = require("./masksMerge");
+const getDiffMask = require("./getDiffMask");
 
-describe("Тестирование masksMerge", () => {
+describe("Тестирование getDiffMask", () => {
 	it("1 маска", () => {
 		const mask = [true, false, false, null, null, true, false];
 		const result = [true, false, false, null, null, true, false];
 
-		expect(masksMerge(mask)).toEqual(result);
+		expect(getDiffMask(mask)).toEqual(result);
 	});
 
 	it("2 маски", () => {
@@ -13,7 +13,7 @@ describe("Тестирование masksMerge", () => {
 		const mask2 = [false, true, false, true, false, true, null];
 		const result = [null, null, false, null, null, true, null];
 
-		expect(masksMerge(mask1, mask2)).toEqual(result);
+		expect(getDiffMask(mask1, mask2)).toEqual(result);
 	});
 
 	it("3 маски", () => {
@@ -22,6 +22,6 @@ describe("Тестирование masksMerge", () => {
 		const mask3 = [null, null, null, null, null, false, null, true, false, null]; // prettier-ignore
 		const result = [null, null, null, null, null, null, null, true, false, null]; // prettier-ignore
 
-		expect(masksMerge(mask1, mask2, mask3)).toEqual(result);
+		expect(getDiffMask(mask1, mask2, mask3)).toEqual(result);
 	});
 });

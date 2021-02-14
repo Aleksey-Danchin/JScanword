@@ -3,7 +3,9 @@ const getNextMask = require("./getNextMask");
 const getDiffictly = require("./getDiffictly");
 const getSimpler = require("./getSimpler");
 
-module.exports = class JScanword extends EventEmitter {
+module.exports = class JScanword extends (
+	EventEmitter
+) {
 	rows = 0;
 	columns = 0;
 
@@ -237,6 +239,7 @@ module.exports = class JScanword extends EventEmitter {
 			const mask = this.getRowMask(y);
 
 			if (!isRowNormal(row, mask)) {
+				console.log("row error", y);
 				return false;
 			}
 		}
@@ -246,6 +249,7 @@ module.exports = class JScanword extends EventEmitter {
 			const mask = this.getColumnMask(x);
 
 			if (!isRowNormal(row, mask)) {
+				console.log("column error", x);
 				return false;
 			}
 		}
