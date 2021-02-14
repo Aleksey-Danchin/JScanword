@@ -3,9 +3,7 @@ const getNextMask = require("./getNextMask");
 const getDiffictly = require("./getDiffictly");
 const getSimpler = require("./getSimpler");
 
-module.exports = class JScanword extends (
-	EventEmitter
-) {
+module.exports = class JScanword extends EventEmitter {
 	rows = 0;
 	columns = 0;
 
@@ -85,6 +83,17 @@ module.exports = class JScanword extends (
 	}
 
 	solveStep() {
+		console.log(
+			JSON.stringify(
+				{
+					rowFlags: this.rowFlags.join(", "),
+					columnFlags: this.columnFlags.join(", "),
+				},
+				null,
+				3
+			)
+		);
+
 		let changed = false;
 
 		for (let x = 0; x < this.columns; x++) {
@@ -176,11 +185,19 @@ module.exports = class JScanword extends (
 		return changed;
 	}
 
-	getGraphic() {
+	getGraphic(x = null, y = null) {
 		const graphic = [];
-		graphic.push(["┌", ...Array(this.columns).fill("─"), "┐"]);
 
-		for (const row of this.matrix) {
+		let border = ["┌", ...Array(this.columns).fill("─"), "┐"];
+
+		if (x !== null) {
+			border[x + 1] = "↓";
+		}
+
+		graphic.push(border);
+
+		for (let i = 0; i < this.rows; i++) {
+			const row = this.matrix[i];
 			const level = ["|"];
 
 			for (const item of row) {
@@ -194,12 +211,46 @@ module.exports = class JScanword extends (
 			}
 
 			level.push("|");
+
+			if (y !== null && i === y) {
+				level[0] = "→";
+				level[level.length - 1] = "←";
+			}
+
 			graphic.push(level);
 		}
 
-		graphic.push(["└", ...Array(this.columns).fill("─"), "┘"]);
+		border = ["└", ...Array(this.columns).fill("─"), "┘"];
+
+		if (x !== null) {
+			border[x + 1] = "↑";
+		}
+
+		graphic.push(border);
 
 		return graphic.map((xs) => xs.join("")).join("\n");
+	}
+
+	get isNormal() {
+		for (let y = 0; y < this.rows; y++) {
+			const row = this.rowHeaders[y];
+			const mask = this.getRowMask(y);
+
+			if (!isRowNormal(row, mask)) {
+				return false;
+			}
+		}
+
+		for (let x = 0; x < this.columns; x++) {
+			const row = this.columnHeaders[x];
+			const mask = this.getColumnMask(x);
+
+			if (!isRowNormal(row, mask)) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 };
 
@@ -220,4 +271,12 @@ function getTransposition(matrix) {
 	}
 
 	return transposition;
+}
+
+function isRowNormal(row, mask) {
+	if (mask.reduce((a, b) => a + b, 0) > row.reduce((a, b) => a + b, 0)) {
+		return false;
+	}
+
+	return true;
 }

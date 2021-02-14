@@ -2,7 +2,7 @@ module.exports = function getMask(row, size) {
 	const rowSum = row.reduce((a, b) => a + b, row.length - 1);
 	const free = size - rowSum;
 
-	if (free === 0) {
+	if (free <= 0) {
 		const mask = Array(size).fill(true);
 
 		let offset = row[0];

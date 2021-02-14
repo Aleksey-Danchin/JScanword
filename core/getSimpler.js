@@ -50,7 +50,7 @@ module.exports = function getSimpler(mask) {
 		}
 
 		for (let i = maskLeft; i < mask.length - maskRight; i++) {
-			if (mask[i] !== null) {
+			if (mask[i] === false) {
 				withContent = true;
 				break;
 			}
