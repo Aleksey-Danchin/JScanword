@@ -72,5 +72,42 @@ module.exports = function getLocalVariants(row, mask) {
 		);
 	}
 
-	return localVariants;
+	for (const localVariant of localVariants) {
+		if (!localVariant.mask.includes(null)) {
+			localVariant.forDelete = true;
+		}
+	}
+
+	for (let i = 0; i < localVariants.length; i++) {
+		const localVariant = localVariants[i];
+
+		if (!localVariant.forDelete) {
+			continue;
+		}
+
+		for (let a = 0; a < i; a++) {
+			for (let j = localVariants[a].maxRow.length - 1; j >= 0; j--) {
+				const item = localVariants[a].maxRow.pop();
+
+				if (item === localVariant.mask.length) {
+					break;
+				}
+			}
+		}
+
+		for (let a = i + 1; a < localVariants.length; a++) {
+			for (let j = 0; j < localVariants[a].maxRow.length; j++) {
+				localVariants[a].offset +=
+					localVariant.offset + localVariant.mask.length;
+
+				const item = localVariants[a].maxRow.pop();
+
+				if (item === localVariant.mask.length) {
+					break;
+				}
+			}
+		}
+	}
+
+	return localVariants.filter((x) => !x.forDelete);
 };
