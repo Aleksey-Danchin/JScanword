@@ -1,4 +1,8 @@
 module.exports = function getMask(row, size) {
+	if (!row.length) {
+		return Array(size).fill(false);
+	}
+
 	const rowSum = row.reduce((a, b) => a + b, row.length - 1);
 	const free = size - rowSum;
 

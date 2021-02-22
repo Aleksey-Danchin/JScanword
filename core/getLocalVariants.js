@@ -53,5 +53,24 @@ module.exports = function getLocalVariants(row, mask) {
 		localVariants[i].minRow = minRow;
 	}
 
+	for (let i = 0; i < localVariants.length; i++) {
+		const maxRow = row.slice();
+
+		let leftOffset = 0;
+		for (let a = 0; a < i; a++) {
+			leftOffset += localVariants[a].minRow.length;
+		}
+
+		let rightOffset = 0;
+		for (let a = localVariants.length - 1; a > i; a--) {
+			rightOffset += localVariants[a].minRow.length;
+		}
+
+		localVariants[i].maxRow = maxRow.slice(
+			leftOffset,
+			maxRow.length - rightOffset
+		);
+	}
+
 	return localVariants;
 };

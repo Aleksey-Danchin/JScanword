@@ -56,7 +56,6 @@ module.exports = class JScanword extends (
 		for (let x = 0; x < this.columns; x++) {
 			if (this.matrix[n][x] !== mask[x]) {
 				this.matrix[n][x] = mask[x];
-				this.rowFlags[n] = true;
 				this.columnFlags[x] = true;
 			}
 		}
@@ -78,24 +77,12 @@ module.exports = class JScanword extends (
 		for (let y = 0; y < this.rows; y++) {
 			if (this.matrix[y][n] !== mask[y]) {
 				this.matrix[y][n] = mask[y];
-				this.columnFlags[n] = true;
 				this.rowFlags[y] = true;
 			}
 		}
 	}
 
 	solveStep() {
-		console.log(
-			JSON.stringify(
-				{
-					rowFlags: this.rowFlags.join(", "),
-					columnFlags: this.columnFlags.join(", "),
-				},
-				null,
-				3
-			)
-		);
-
 		let changed = false;
 
 		for (let x = 0; x < this.columns; x++) {
