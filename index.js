@@ -4,7 +4,7 @@ const database = require("./database.json");
 const fs = require("fs");
 const path = require("path");
 
-const jscanword = new JScanword(database[2]);
+const jscanword = new JScanword(database[1]);
 
 jscanword.on("stepStart", (direct, index) => {
 	console.log(`Start ${direct}:${index}`);
