@@ -33,4 +33,16 @@ describe("Тестирование функции borderSolve", () => {
 
 		expect(answer).toEqual(result);
 	});
+
+	it("Условие полного заполнения", () => {
+		const row = [2];
+		// prettier-ignore
+		const mask = [true, null];
+
+		const answer = borderSolve(row, mask);
+		// prettier-ignore
+		const result = [true, true];
+
+		expect(answer).toEqual(result);
+	});
 });

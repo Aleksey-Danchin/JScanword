@@ -3,6 +3,7 @@ const getMask = require("./getMask");
 describe("Тест функции getMask", () => {
 	it("1 кораблик во весь ряд", () => {
 		expect(getMask([1], 1)).toEqual([true]);
+		expect(getMask([2], 2)).toEqual([true, true]);
 		expect(getMask([3], 3)).toEqual([true, true, true]);
 	});
 

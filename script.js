@@ -6,12 +6,14 @@ const variantToMask = require("./core/variantToMask");
 const getLocalVariants = require("./core/getLocalVariants");
 const getNextMask = require("./core/getNextMask");
 
-const row = [2, 2, 1];
+const row = [2, 2, 2];
 // prettier-ignore
-const mask = [null, null, null, null, null, true, null, null, null, false, true, null, null, null, false]
+const mask = [null, true, null, false, true, null, false, null, true, null]
+
+console.log([...byVariants([1], 3)]);
 
 //
 // [null, null, null, null, true, null, null, null, null, false, true, false, false, false, true]
-
-console.log(getNextMask(row, mask));
+// getNextMask(row, mask);
+// console.log(getNextMask(row, mask));
 // console.log(getLocalVariants(row, mask));

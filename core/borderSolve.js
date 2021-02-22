@@ -18,7 +18,9 @@ module.exports = function borderSolve(row, mask) {
 				mask[i + j] = true;
 			}
 
-			mask[i + n] = false;
+			if (i + n < mask.length) {
+				mask[i + n] = false;
+			}
 
 			i += n;
 			rowLeftIndex++;
@@ -41,7 +43,9 @@ module.exports = function borderSolve(row, mask) {
 				mask[i - j] = true;
 			}
 
-			mask[i - n] = false;
+			if (i - n >= 0) {
+				mask[i - n] = false;
+			}
 
 			i -= n;
 			rowRightIndex--;

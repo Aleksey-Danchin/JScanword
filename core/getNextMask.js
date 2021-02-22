@@ -6,12 +6,13 @@ const variantCheck = require("./variantCheck");
 const variantToMask = require("./variantToMask");
 const getLocalVariants = require("./getLocalVariants");
 
-const COUNTER_OFFSET = 25 * 10 ** 6;
-
 function getNextMask(row, mask) {
 	// Если маска полна, то возвращаем ее
 	if (isFull(mask)) {
-		return mask;
+		return {
+			mask,
+			tired: false,
+		};
 	}
 
 	// Если маска суммарно заполнена, то оставшиеся позиции заполняем false и возвращаем
@@ -22,18 +23,25 @@ function getNextMask(row, mask) {
 			}
 		}
 
-		return mask;
+		return {
+			mask,
+			tired: false,
+		};
 	}
 
 	// Если маска пустая, то берем крайнией пересечения
 	if (isEmpty(mask)) {
-		return getMask(row, mask.length);
+		return {
+			mask: getMask(row, mask.length),
+			tired: false,
+		};
 	}
 
 	// Если по бокам уже что-то решено, то решаем середину
 	const center = getCenter(row, mask);
 	if (center.centerd) {
-		const subMask = solve(center.row, center.mask);
+		const result = solve(center.row, center.mask);
+		const subMask = result.mask;
 
 		for (let i = 0; i < subMask.length; i++) {
 			if (mask[center.offset + i] === null) {
@@ -41,7 +49,10 @@ function getNextMask(row, mask) {
 			}
 		}
 
-		return mask;
+		return {
+			mask,
+			tired: result.tired,
+		};
 	}
 
 	return solve(row, mask);
@@ -60,6 +71,8 @@ function solve(row, mask) {
 
 		let changed = false;
 		let offset = 0;
+		let tired = false;
+
 		for (const localVariant of localVariants) {
 			offset += localVariant.offset;
 
@@ -85,7 +98,12 @@ function solve(row, mask) {
 				}
 
 				if (flag) {
-					const nextMask = getNextMask(localVariant.minRow, localVariant.mask);
+					const result = getNextMask(localVariant.minRow, localVariant.mask);
+					const nextMask = result.mask;
+
+					if (!tired) {
+						tired = result.tired;
+					}
 
 					for (let i = 0; i < nextMask.length; i++) {
 						if (mask[offset + i] === null && nextMask[i] !== null) {
@@ -95,7 +113,12 @@ function solve(row, mask) {
 					}
 				}
 			} else if (getSum(localVariant.mask) === getSum(localVariant.maxRow)) {
-				const nextMask = getNextMask(localVariant.maxRow, localVariant.mask);
+				const result = getNextMask(localVariant.maxRow, localVariant.mask);
+				const nextMask = result.mask;
+
+				if (!tired) {
+					tired = result.tired;
+				}
 
 				for (let i = 0; i < nextMask.length; i++) {
 					if (mask[offset + i] === null && nextMask[i] !== null) {
@@ -104,7 +127,6 @@ function solve(row, mask) {
 					}
 				}
 			} else if (
-				localVariant.maxRow.length &&
 				localVariant.maxRow.every((x) => x > localVariant.mask.length)
 			) {
 				for (let i = 0; i < localVariant.mask.length; i++) {
@@ -119,7 +141,11 @@ function solve(row, mask) {
 		}
 
 		if (changed) {
-			return getNextMask(row, mask);
+			const result = getNextMask(row, mask);
+			return {
+				mask: result.mask,
+				tired: result.tired || tired,
+			};
 		}
 	}
 
@@ -148,7 +174,7 @@ function isEmpty(mask) {
 }
 
 function isBordered(mask) {
-	return mask[0] !== null || mask[mask.length - 1] !== null;
+	return mask[0] || mask[mask.length - 1];
 }
 
 function multiply(mask, newMask) {
@@ -161,14 +187,29 @@ function multiply(mask, newMask) {
 	return mask;
 }
 
+const COUNTER_OFFSET = 10 ** 5;
+let broodcastHistory = new Map();
+
 function broodcast(row, mask) {
-	let counter = 0;
-	let ctrlMask = null;
-	mainLoop: for (const variant of byVariants(row, mask.length)) {
+	let counter = 1;
+
+	const key = [
+		...row,
+		"|",
+		...mask.map((x) => (x ? 2 : x === false ? 1 : 0)),
+	].join(",");
+
+	let { variant: startVariant, ctrlMask } = broodcastHistory.get(key) || {};
+
+	mainLoop: for (const variant of byVariants(row, mask.length, startVariant)) {
 		counter++;
 
-		if (counter > 0 && counter % COUNTER_OFFSET === 0) {
-			console.log("variants:", counter);
+		if (counter % COUNTER_OFFSET === 0) {
+			broodcastHistory.set(key, { variant, ctrlMask });
+			return {
+				mask,
+				tired: true,
+			};
 		}
 
 		if (!variantCheck(variant, mask)) {
@@ -191,5 +232,8 @@ function broodcast(row, mask) {
 		break;
 	}
 
-	return ctrlMask ? ctrlMask : mask;
+	return {
+		mask: ctrlMask ? ctrlMask : mask,
+		tired: false,
+	};
 }
