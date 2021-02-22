@@ -59,6 +59,13 @@ function getNextMask(row, mask) {
 }
 
 function solve(row, mask) {
+	if (!row.length) {
+		return {
+			mask,
+			tired: false,
+		};
+	}
+
 	// Если по бокам true, то решаем бока
 	if (isBordered(mask)) {
 		borderSolve(row, mask);
@@ -187,7 +194,7 @@ function multiply(mask, newMask) {
 	return mask;
 }
 
-const COUNTER_OFFSET = 10 ** 5;
+let maxChecks = 10;
 let broodcastHistory = new Map();
 
 function broodcast(row, mask) {
@@ -204,8 +211,11 @@ function broodcast(row, mask) {
 	mainLoop: for (const variant of byVariants(row, mask.length, startVariant)) {
 		counter++;
 
-		if (counter % COUNTER_OFFSET === 0) {
+		if (counter > maxChecks) {
+			maxChecks += 1;
+
 			broodcastHistory.set(key, { variant, ctrlMask });
+
 			return {
 				mask,
 				tired: true,
@@ -231,6 +241,8 @@ function broodcast(row, mask) {
 
 		break;
 	}
+
+	maxChecks = 10;
 
 	return {
 		mask: ctrlMask ? ctrlMask : mask,

@@ -2,9 +2,7 @@ const EventEmitter = require("events");
 const getNextMask = require("./getNextMask");
 const getSimpler = require("./getSimpler");
 
-module.exports = class JScanword extends (
-	EventEmitter
-) {
+module.exports = class JScanword extends EventEmitter {
 	rows = 0;
 	columns = 0;
 
@@ -16,7 +14,7 @@ module.exports = class JScanword extends (
 
 	matrix = [[]];
 
-	constructor(params) {
+	constructor(params, matrix) {
 		super();
 
 		this.rows = params.rows;
@@ -30,9 +28,13 @@ module.exports = class JScanword extends (
 			xs.filter((x) => x)
 		);
 
-		this.matrix = Array(this.rows)
-			.fill()
-			.map(() => Array(this.columns).fill(null));
+		if (matrix) {
+			this.matrix = matrix;
+		} else {
+			this.matrix = Array(this.rows)
+				.fill()
+				.map(() => Array(this.columns).fill(null));
+		}
 	}
 
 	get solved() {

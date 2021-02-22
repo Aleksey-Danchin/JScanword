@@ -4,7 +4,10 @@ const database = require("./database.json");
 const fs = require("fs");
 const path = require("path");
 
-const jscanword = new JScanword(database[8]);
+const jscanword = new JScanword(
+	database[9]
+	// getMatrixFromFile(path.join(__dirname, "result.txt"))
+);
 
 // jscanword.on("stepStart", (direct, index) => {
 // 	console.log(`Start ${direct}:${index}`);
@@ -50,3 +53,18 @@ while (jscanword.solveStep()) {
 
 console.log(jscanword.getGraphic());
 fs.writeFileSync(path.join(__dirname, "result.txt"), jscanword.getGraphic());
+
+function getMatrixFromFile(filePath) {
+	return fs
+		.readFileSync(filePath, { encoding: "utf-8" })
+		.split("\n")
+		.map((row) =>
+			row.split("").map((x) => {
+				if (x === "?") {
+					return null;
+				}
+
+				return x === " " ? false : true;
+			})
+		);
+}
