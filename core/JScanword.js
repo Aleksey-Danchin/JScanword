@@ -2,7 +2,9 @@ const EventEmitter = require("events");
 const getNextMask = require("./getNextMask");
 const getSimpler = require("./getSimpler");
 
-module.exports = class JScanword extends EventEmitter {
+module.exports = class JScanword extends (
+	EventEmitter
+) {
 	rows = 0;
 	columns = 0;
 
@@ -91,7 +93,7 @@ module.exports = class JScanword extends EventEmitter {
 
 			const mask = this.getColumnMask(x);
 			this.emit(`stepStart`, "column", x);
-			const result = getNextMask(this.columnHeaders[x], mask.slice());
+			const result = getNextMask(x + 1, this.columnHeaders[x], mask.slice());
 			this.setColumnMask(x, result.mask, result.tired);
 			this.emit(`stepFinish`, "column", x);
 		}
@@ -103,7 +105,7 @@ module.exports = class JScanword extends EventEmitter {
 
 			const mask = this.getRowMask(y);
 			this.emit(`stepStart`, "row", y);
-			const result = getNextMask(this.rowHeaders[y], mask.slice());
+			const result = getNextMask(-(y + 1), this.rowHeaders[y], mask.slice());
 			this.setRowMask(y, result.mask, result.tired);
 			this.emit(`stepFinish`, "row", y);
 		}

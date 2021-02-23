@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 
 const jscanword = new JScanword(
-	database[9]
+	database[8]
 	// getMatrixFromFile(path.join(__dirname, "result.txt"))
 );
 
@@ -31,7 +31,7 @@ const jscanword = new JScanword(
 // });
 
 while (jscanword.solveStep()) {
-	console.log(jscanword.getGraphic());
+//	console.log(jscanword.getGraphic());
 
 	let notNullNumber = 0;
 
@@ -48,7 +48,7 @@ while (jscanword.solveStep()) {
 		}%`
 	);
 
-	fs.writeFileSync(path.join(__dirname, "result.txt"), jscanword.getGraphic());
+//	fs.writeFileSync(path.join(__dirname, "result.txt"), jscanword.getGraphic());
 }
 
 console.log(jscanword.getGraphic());

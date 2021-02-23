@@ -6,7 +6,7 @@ const variantCheck = require("./variantCheck");
 const variantToMask = require("./variantToMask");
 const getLocalVariants = require("./getLocalVariants");
 
-function getNextMask(row, mask) {
+function getNextMask(key, row, mask) {
 	// Если маска полна, то возвращаем ее
 	if (isFull(mask)) {
 		return {
@@ -40,7 +40,7 @@ function getNextMask(row, mask) {
 	// Если по бокам уже что-то решено, то решаем середину
 	const center = getCenter(row, mask);
 	if (center.centerd) {
-		const result = solve(center.row, center.mask);
+		const result = solve(key, center.row, center.mask);
 		const subMask = result.mask;
 
 		for (let i = 0; i < subMask.length; i++) {
@@ -55,10 +55,10 @@ function getNextMask(row, mask) {
 		};
 	}
 
-	return solve(row, mask);
+	return solve(key, row, mask);
 }
 
-function solve(row, mask) {
+function solve(key, row, mask) {
 	if (!row.length) {
 		return {
 			mask,
@@ -69,7 +69,7 @@ function solve(row, mask) {
 	// Если по бокам true, то решаем бока
 	if (isBordered(mask)) {
 		borderSolve(row, mask);
-		return getNextMask(row, mask);
+		return getNextMask(key, row, mask);
 	}
 
 	// Если есть остравки, то решаем остравки
@@ -105,7 +105,11 @@ function solve(row, mask) {
 				}
 
 				if (flag) {
-					const result = getNextMask(localVariant.minRow, localVariant.mask);
+					const result = getNextMask(
+						key,
+						localVariant.minRow,
+						localVariant.mask
+					);
 					const nextMask = result.mask;
 
 					if (!tired) {
@@ -120,7 +124,7 @@ function solve(row, mask) {
 					}
 				}
 			} else if (getSum(localVariant.mask) === getSum(localVariant.maxRow)) {
-				const result = getNextMask(localVariant.maxRow, localVariant.mask);
+				const result = getNextMask(key, localVariant.maxRow, localVariant.mask);
 				const nextMask = result.mask;
 
 				if (!tired) {
@@ -148,7 +152,7 @@ function solve(row, mask) {
 		}
 
 		if (changed) {
-			const result = getNextMask(row, mask);
+			const result = getNextMask(key, row, mask);
 			return {
 				mask: result.mask,
 				tired: result.tired || tired,
@@ -157,7 +161,7 @@ function solve(row, mask) {
 	}
 
 	// Остается перебор
-	return broodcast(row, mask);
+	return broodcast(key, row, mask);
 }
 
 module.exports = getNextMask;
@@ -197,24 +201,29 @@ function multiply(mask, newMask) {
 let maxChecks = 10;
 let broodcastHistory = new Map();
 
-function broodcast(row, mask) {
+function broodcast(key, row, mask) {
 	let counter = 1;
 
-	const key = [
-		...row,
-		"|",
-		...mask.map((x) => (x ? 2 : x === false ? 1 : 0)),
-	].join(",");
+	const base = broodcastHistory.get(key);
+	const flag = mask.map((x) => (x ? 2 : x === false ? 1 : 0)).join("");
 
-	let { variant: startVariant, ctrlMask } = broodcastHistory.get(key) || {};
+	let startVariant = null;
+	let ctrlMask = null;
+
+	if (base && base.flag === flag) {
+		startVariant = base.startVariant;
+		ctrlMask = base.ctrlMask;
+	}
+
+	broodcastHistory.delete(key);
 
 	mainLoop: for (const variant of byVariants(row, mask.length, startVariant)) {
 		counter++;
 
 		if (counter > maxChecks) {
-			maxChecks += 1;
+			maxChecks += 10;
 
-			broodcastHistory.set(key, { variant, ctrlMask });
+			broodcastHistory.set(key, { flag, startVariant: variant, ctrlMask });
 
 			return {
 				mask,
@@ -243,6 +252,8 @@ function broodcast(row, mask) {
 	}
 
 	maxChecks = 10;
+
+	broodcastHistory.delete(key);
 
 	return {
 		mask: ctrlMask ? ctrlMask : mask,
